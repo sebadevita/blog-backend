@@ -1,4 +1,4 @@
-require("dotenv").config()
+const config = require('../utils/config')
 const mongoose = require("mongoose")
 const logger = require('../utils/logger')
 
@@ -23,7 +23,7 @@ blogSchema.set("toJSON", {
 const Blog = mongoose.model("Blog", blogSchema)
 
 
-const mongoUrl = process.env.MONGO_DB_URI
+const mongoUrl = config.MONGODB_URI
 mongoose
   .connect(mongoUrl, {
     useNewUrlParser: true,

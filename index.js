@@ -6,6 +6,8 @@ const mongoose = require("mongoose")
 
 const Blog = require('./src/models/blog')
 const logger = require('./src/utils/logger')
+const config = require('./src/utils/config')
+
 
 
 app.use(cors())
@@ -25,7 +27,7 @@ app.post("/api/blogs", (request, response) => {
   })
 })
 
-PORT = process.env.PORT
+PORT = config.PORT
 app.listen(PORT, () => {
   logger.info(`Server running on port ${PORT}`)
 })
