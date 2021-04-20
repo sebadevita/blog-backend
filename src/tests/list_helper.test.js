@@ -27,6 +27,14 @@ const listWithManyBlogs = [
     url:
       'http://www.u.arizona.edu/~rubinson/copyright_violations/Go_To_Considered_Harmful.html',
     likes: 2
+  },
+  {
+    id: '5a422aa71b54a676234d17f7',
+    title: 'Go To Statement Considered Harmful',
+    author: 'Seba Dev',
+    url:
+      'http://www.u.arizona.edu/~rubinson/copyright_violations/Go_To_Considered_Harmful.html',
+    likes: 0
   }
 ]
 describe('dummy', () => {
@@ -83,5 +91,28 @@ describe('favourite blog', () => {
   test('when have an empty list the result is zero', () => {
     const result = listHelper.favouriteBlog([])
     expect(result).toBe(0)
+  })
+
+  describe('Most blogs', () => {
+    test('when have a list with one blog the top author is the unique author', () => {
+      const result = listHelper.mostBlogs(listWithManyBlogs)
+      expect(result).toStrictEqual({
+        author: 'Edsger W. Dijkstra',
+        blogs: 2
+      })
+    })
+
+    test('when have a list with many blogs the top author is the one who write more', () => {
+      const result = listHelper.mostBlogs(listWithManyBlogs)
+      expect(result).toStrictEqual({
+        author: 'Edsger W. Dijkstra',
+        blogs: 2
+      })
+    })
+
+    test('when receive an empty list, you get an error message', () => {
+      const result = listHelper.mostBlogs([])
+      expect(result).toBe('Blogs is empty')
+    })
   })
 })
