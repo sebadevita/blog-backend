@@ -34,7 +34,7 @@ const listWithManyBlogs = [
     author: 'Seba Dev',
     url:
       'http://www.u.arizona.edu/~rubinson/copyright_violations/Go_To_Considered_Harmful.html',
-    likes: 0
+    likes: 1
   }
 ]
 describe('dummy', () => {
@@ -59,7 +59,7 @@ describe('total likes', () => {
 
   test('of a bigger list is calculated right', () => {
     const result = listHelper.totalLikes(listWithManyBlogs)
-    expect(result).toBe(7)
+    expect(result).toBe(8)
   })
 })
 
@@ -92,27 +92,50 @@ describe('favourite blog', () => {
     const result = listHelper.favouriteBlog([])
     expect(result).toBe(0)
   })
+})
 
-  describe('Most blogs', () => {
-    test('when have a list with one blog the top author is the unique author', () => {
-      const result = listHelper.mostBlogs(listWithManyBlogs)
-      expect(result).toStrictEqual({
-        author: 'Edsger W. Dijkstra',
-        blogs: 2
-      })
+describe('most blogs', () => {
+  test('when have a list with one blog the top author is the unique author', () => {
+    const result = listHelper.mostBlogs(listWithOneBlog)
+    expect(result).toStrictEqual({
+      author: 'Edsger W. Dijkstra',
+      blogs: 1
     })
+  })
 
-    test('when have a list with many blogs the top author is the one who write more', () => {
-      const result = listHelper.mostBlogs(listWithManyBlogs)
-      expect(result).toStrictEqual({
-        author: 'Edsger W. Dijkstra',
-        blogs: 2
-      })
+  test('when have a list with many blogs the top author is the one who write more', () => {
+    const result = listHelper.mostBlogs(listWithManyBlogs)
+    expect(result).toStrictEqual({
+      author: 'Edsger W. Dijkstra',
+      blogs: 2
     })
+  })
 
-    test('when receive an empty list, you get an error message', () => {
-      const result = listHelper.mostBlogs([])
-      expect(result).toBe('Blogs is empty')
+  test('when receive an empty list, you get an error message', () => {
+    const result = listHelper.mostBlogs([])
+    expect(result).toBe('Blogs is empty')
+  })
+})
+
+describe('most likes', () => {
+  test('when have a list with one blog the one who has more likes is the unique author', () => {
+    const result = listHelper.mostLikes(listWithOneBlog)
+    expect(result).toStrictEqual({
+      author: 'Edsger W. Dijkstra',
+      likes: 5
     })
+  })
+
+  test('when have a list with many blogs the author is who has more likes', () => {
+    const result = listHelper.mostLikes(listWithManyBlogs)
+    expect(result).toStrictEqual({
+      author: 'Edsger W. Dijkstra',
+      likes: 7
+    })
+  })
+
+  test('when receive an empty list, you get an error message', () => {
+    const result = listHelper.mostLikes([])
+    expect(result).toBe('Blogs is empty')
   })
 })
