@@ -12,11 +12,10 @@ const favouriteBlog = (blogs) => {
   return blogs.length === 0
     ? 0
     : blogs.reduce((prevBlog, blog) =>
-      prevBlog.likes > blog.likes
-        ? prevBlog
-        : blog)
+      prevBlog.likes > blog.likes ? prevBlog : blog
+    )
 
-  // Otra forma
+  // Another way
   // const likes = blogs.map(blog => blog.likes)
   // const max = Math.max.apply(Math, likes)
   // const favourite = blogs.find(blog => blog.likes === max)
@@ -27,10 +26,14 @@ const mostBlogs = (blogs) => {
   if (blogs.length === 0) {
     return 'Blogs is empty'
   } else {
-    const topAuthor = _.chain(blogs)
+    const topAuthor =
+    _.chain(blogs)
       .groupBy('author')
       .map((group, author) => {
-        return { author: author, blogs: group.length }
+        return {
+          author: author,
+          blogs: group.length
+        }
       })
       .maxBy((object) => object.blogs)
       .value()

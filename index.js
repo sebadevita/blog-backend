@@ -1,17 +1,10 @@
-const http = require("http")
-const express = require("express")
 const app = require('./app')
-const cors = require("cors")
-const mongoose = require("mongoose")
-
-const Blog = require('./src/models/blog')
-const logger = require('./src/utils/logger')
+const http = require('http')
 const config = require('./src/utils/config')
+const logger = require('./src/utils/logger')
 
-app.use(cors())
-app.use(express.json())
+const server = http.createServer(app)
 
-PORT = config.PORT
-app.listen(PORT, () => {
-  logger.info(`Server running on port ${PORT}`)
+server.listen(config.PORT, () => {
+  logger.info(`Server running on port ${config.PORT}`)
 })
