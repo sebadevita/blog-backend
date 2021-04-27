@@ -4,8 +4,9 @@
   "description": "Backend of blog application",
   "main": "index.js",
   "scripts": {
-    "test": "jest --verbose",
-    "dev": "nodemon ./src/index.js"
+    "start": "cross-env NODE_ENV=production node index.js",
+    "test": "cross-env NODE_ENV=test jest --verbose --runInBand",
+    "dev": "cross-env NODE_ENV=development nodemon ./src/index.js"
   },
   "repository": {
     "type": "git",
@@ -36,6 +37,7 @@
     }
   },
   "devDependencies": {
+    "cross-env": "^7.0.3",
     "jest": "^26.6.3",
     "standard": "^16.0.3",
     "supertest": "^6.1.3"
