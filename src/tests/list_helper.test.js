@@ -37,7 +37,7 @@ const listWithManyBlogs = [
     likes: 1
   }
 ]
-describe('dummy', () => {
+describe.skip('dummy', () => {
   test('returns one', () => {
     const blogs = []
 
@@ -46,7 +46,7 @@ describe('dummy', () => {
   })
 })
 
-describe('total likes', () => {
+describe.skip('total likes', () => {
   test('when list has only one blog, equals the likes of that', () => {
     const result = listHelper.totalLikes(listWithOneBlog)
     expect(result).toBe(5)
@@ -63,7 +63,7 @@ describe('total likes', () => {
   })
 })
 
-describe('favourite blog', () => {
+describe.skip('favourite blog', () => {
   test('when have a list with many blogs the favourite is the one with more likes', () => {
     const result = listHelper.favouriteBlog(listWithManyBlogs)
     expect(result).toStrictEqual({
@@ -94,7 +94,7 @@ describe('favourite blog', () => {
   })
 })
 
-describe('most blogs', () => {
+describe.skip('most blogs', () => {
   test('when have a list with one blog the top author is the unique author', () => {
     const result = listHelper.mostBlogs(listWithOneBlog)
     expect(result).toStrictEqual({
@@ -117,7 +117,7 @@ describe('most blogs', () => {
   })
 })
 
-describe('most likes', () => {
+describe.skip('most likes', () => {
   test('when have a list with one blog the one who has more likes is the unique author', () => {
     const result = listHelper.mostLikes(listWithOneBlog)
     expect(result).toStrictEqual({
