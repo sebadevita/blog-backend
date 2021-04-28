@@ -20,15 +20,14 @@ const initialBlogs = [
     likes: 100
   }
 ]
-
-beforeEach(async () => {
-  await Blog.deleteMany({})
-  const blog1 = new Blog(initialBlogs[0])
-  blog1.save()
-  const blog2 = new Blog(initialBlogs[1])
-  blog2.save()
-})
 describe('blogs', () => {
+  beforeEach(async () => {
+    await Blog.deleteMany({})
+    const blog1 = new Blog(initialBlogs[0])
+    await blog1.save()
+    const blog2 = new Blog(initialBlogs[1])
+    await blog2.save()
+  })
   test('are returned as json', async () => {
     await api
       .get('/api/blogs')
@@ -44,7 +43,7 @@ describe('blogs', () => {
   test('the first blog is about Seba', async () => {
     const response = await api.get('/api/blogs')
 
-    const titles = response.body.map(blog => blog.title)
+    const titles = await response.body.map(blog => blog.title)
 
     expect(titles).toContain('Seba Blog')
   })
@@ -54,7 +53,14 @@ describe('blogs', () => {
   })
 })
 
-describe('post a blog', () => {
+describe('create a blog', () => {
+  beforeEach(async () => {
+    await Blog.deleteMany({})
+    const blog1 = new Blog(initialBlogs[0])
+    await blog1.save()
+    const blog2 = new Blog(initialBlogs[1])
+    await blog2.save()
+  })
   test('a valid post can be added', async () => {
     const newBlog = {
       title: 'New Blog',
@@ -74,7 +80,29 @@ describe('post a blog', () => {
 
     expect(response.body).toHaveLength(initialBlogs.length + 1)
   })
+
+  test('when do not receive likes the default value is zero', async () => {
+    const blogWithoutLikes = {
+      title: 'Blog without likes',
+      author: 'warren',
+      url: 'https://twitter.com/warrensanchez'
+    }
+
+    await api
+      .post('/api/blogs')
+      .send(blogWithoutLikes)
+      .expect(200)
+      .expect('Content-Type', /application\/json/)
+
+    // const response = await api.get('/api/blogs')
+    // const likesList = response.body.map(blog => blog.likes)
+    // expect(likesList).toContain(0)
+    const result = await Blog.findOne({ title: 'Blog without likes' })
+
+    expect(result.likes).toBe(0)
+  })
 })
+
 afterAll(() => {
   mongoose.connection.close()
 })

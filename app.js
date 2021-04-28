@@ -7,8 +7,6 @@ const middleware = require('./src/utils/middleware')
 const logger = require('./src/utils/logger')
 const mongoose = require('mongoose')
 
-logger.info('connecting to', config.MONGODB_URI)
-
 mongoose
   .connect(config.MONGODB_URI, {
     useNewUrlParser: true,
