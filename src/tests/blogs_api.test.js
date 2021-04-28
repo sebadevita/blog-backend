@@ -53,6 +53,28 @@ describe('blogs', () => {
     expect(response.body[0].id).toBeDefined()
   })
 })
+
+describe('post a blog', () => {
+  test('a valid post can be added', async () => {
+    const newBlog = {
+      title: 'New Blog',
+      author: 'sebita',
+      url: 'https://twitter.com/Sebadevita',
+      likes: 50
+
+    }
+
+    await api
+      .post('/api/blogs')
+      .send(newBlog)
+      .expect(200)
+      .expect('Content-Type', /application\/json/)
+
+    const response = await api.get('/api/blogs')
+
+    expect(response.body).toHaveLength(initialBlogs.length + 1)
+  })
+})
 afterAll(() => {
   mongoose.connection.close()
 })
