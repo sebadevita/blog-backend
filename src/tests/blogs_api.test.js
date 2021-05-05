@@ -135,6 +135,29 @@ describe('create a blog', () => {
   })
 })
 
+describe('delete a blog', () => {
+  let blog1
+  let blog2
+
+  beforeEach(async () => {
+    await Blog.deleteMany({})
+    blog1 = new Blog(initialBlogs[0])
+    await blog1.save()
+    blog2 = new Blog(initialBlogs[1])
+    await blog2.save()
+  })
+
+  test('a blog can be deleted', async () => {
+    await api
+      .delete(`/api/blogs/${blog1.id}`)
+      .expect(204)
+
+    const response = await api.get('/api/blogs')
+
+    expect(response.body).toHaveLength(initialBlogs.length - 1)
+  })
+})
+
 afterAll(() => {
   mongoose.connection.close()
 })
