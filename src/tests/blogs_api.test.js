@@ -101,6 +101,23 @@ describe('create a blog', () => {
 
     expect(result.likes).toBe(0)
   })
+
+  test('blog without title is not added ', async () => {
+    const blogWithoutTitle = {
+      author: 'sebita',
+      url: 'https://twitter.com/Sebadevita',
+      likes: 100
+
+    }
+
+    await api
+      .post('/api/blogs')
+      .send(blogWithoutTitle)
+      .expect(400)
+
+    const response = await api.get('/api/blogs')
+    expect(response.body).toHaveLength(initialBlogs.length)
+  })
 })
 
 afterAll(() => {
