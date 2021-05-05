@@ -118,6 +118,21 @@ describe('create a blog', () => {
     const response = await api.get('/api/blogs')
     expect(response.body).toHaveLength(initialBlogs.length)
   })
+
+  test('blog without url is not added', async () => {
+    const blogWithoutUrl = {
+      title: 'Seba Blog',
+      author: 'sebita',
+      likes: 100
+    }
+    await api
+      .post('/api/blogs')
+      .send(blogWithoutUrl)
+      .expect(400)
+
+    const response = await api.get('/api/blogs')
+    expect(response.body).toHaveLength(initialBlogs.length)
+  })
 })
 
 afterAll(() => {
