@@ -158,6 +158,37 @@ describe('delete a blog', () => {
   })
 })
 
+describe('update a blog', () => {
+  let blog1
+  let blog2
+
+  beforeEach(async () => {
+    await Blog.deleteMany({})
+    blog1 = new Blog(initialBlogs[0])
+    await blog1.save()
+    blog2 = new Blog(initialBlogs[1])
+    await blog2.save()
+  })
+
+  test('a valid blog can be updated', async () => {
+    const updatedBlog = {
+      title: 'Updated Blog',
+      author: 'sebita updated',
+      url: 'https://twitter.com/Sebadevita',
+      likes: 50
+
+    }
+    await api
+      .put(`/api/blogs/${blog1.id}`)
+      .send(updatedBlog)
+      .expect(200)
+
+    const result = await Blog.findOne({ title: 'Updated Blog' })
+
+    expect(result.title).toBe('Updated Blog')
+  })
+})
+
 afterAll(() => {
   mongoose.connection.close()
 })
