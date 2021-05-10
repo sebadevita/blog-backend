@@ -37,7 +37,26 @@ blogsRouter.delete('/:id', async (request, response, next) => {
   try {
     await Blog.findByIdAndDelete(idBlog)
     response.status(204).json({ msg: 'The blog was deleted!' })
-    console.log('El ID ES ESTE', idBlog)
+  } catch (error) {
+    next(error)
+  }
+})
+
+blogsRouter.put('/:id', async (request, response, next) => {
+  const updatedBlog = request.body
+  const idBlog = request.params.id
+
+  const blog = {
+    title: updatedBlog.title,
+    author: updatedBlog.author,
+    url: updatedBlog.url,
+    likes: updatedBlog.likes
+
+  }
+
+  try {
+    await Blog.findByIdAndUpdate(idBlog, blog, { new: true })
+    response.json(updatedBlog)
   } catch (error) {
     next(error)
   }
