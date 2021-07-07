@@ -17,7 +17,7 @@ const initialUsers = [
     password: 'mandarina123'
   }
 ]
-describe('users', () => {
+describe('get users', () => {
   beforeEach(async () => {
     await User.deleteMany({})
     const user1 = new User(initialUsers[0])
@@ -32,17 +32,17 @@ describe('users', () => {
       .expect('Content-Type', /application\/json/)
   })
 
-  test('there are 2 blogs', async () => {
-    const response = await api.get('/api/blogs')
-    expect(response.body).toHaveLength(initialBlogs.length)
+  test('there are 2 users', async () => {
+    const response = await api.get('/api/users')
+    expect(response.body).toHaveLength(initialUsers.length)
   })
 
-  test('the first blog is about Seba', async () => {
-    const response = await api.get('/api/blogs')
+  test('the first user is sebita', async () => {
+    const response = await api.get('/api/users')
 
-    const titles = await response.body.map(blog => blog.title)
+    const users = await response.body.map(user => user.username)
 
-    expect(titles).toContain('Seba Blog')
+    expect(users).toContain('sebita')
   })
   test('the unique identifier is named id', async () => {
     const response = await api.get('/api/blogs')
