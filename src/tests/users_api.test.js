@@ -9,12 +9,12 @@ const initialUsers = [
   {
     username: 'sebita',
     name: 'Sebastian',
-    password: 'banana123'
+    passwordHash: 'banana123'
   },
   {
     username: 'andylarquy',
     name: 'Andres',
-    password: 'mandarina123'
+    passwordHash: 'mandarina123'
   }
 ]
 describe('get users', () => {
@@ -76,6 +76,37 @@ describe('create user', () => {
     const response = await api.get('/api/users')
 
     expect(response.body).toHaveLength(initialUsers.length + 1)
+  })
+
+  test('without username is not added ', async () => {
+    const userWithoutUsername = {
+      name: 'User',
+      password: 'banana123'
+    }
+
+    await api
+      .post('/api/users')
+      .send(userWithoutUsername)
+      .expect(400)
+
+    const response = await api.get('/api/users')
+    expect(response.body).toHaveLength(initialUsers.length)
+  })
+
+  test('with username of 2 characters is not added ', async () => {
+    const userWith2Characters = {
+      username: 'us',
+      name: 'User',
+      password: 'banana123'
+    }
+
+    await api
+      .post('/api/users')
+      .send(userWith2Characters)
+      .expect(400)
+
+    const response = await api.get('/api/users')
+    expect(response.body).toHaveLength(initialUsers.length)
   })
 })
 
