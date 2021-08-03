@@ -67,11 +67,25 @@ blogsRouter.post('/', userExtractor, async (request, response, next) => {
 })
 
 blogsRouter.delete('/:id', userExtractor, async (request, response, next) => {
-  const idBlog = request.params.id
+  // console.log(userId)
+
+  // if (blog.user.toString() !== userId) {
+  //   response.status(403)
+  // }
 
   try {
+    const idBlog = request.params.id
+
+    const blog = await Blog.findById(idBlog)
+
+    const { userId } = request
+
+    if (blog && blog.user.toString() !== userId.toString()) {
+      response.status(401).send({ error: 'The user does not have permissions' })
+    }
+
     await Blog.findByIdAndDelete(idBlog)
-    response.status(204).json({ msg: 'The blog was deleted!' })
+    response.status(200).json({ msg: 'The blog was deleted!' })
   } catch (error) {
     next(error)
   }

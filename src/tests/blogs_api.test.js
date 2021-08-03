@@ -150,7 +150,7 @@ describe('delete a blog', () => {
   test('a blog can be deleted', async () => {
     await api
       .delete(`/api/blogs/${blog1.id}`)
-      .expect(204)
+      .expect(200)
 
     const response = await api.get('/api/blogs')
 
