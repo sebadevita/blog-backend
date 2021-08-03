@@ -2,16 +2,17 @@ const Blog = require('../models/blog')
 const User = require('../models/user')
 const blogsRouter = require('express').Router()
 const jwt = require('jsonwebtoken')
+const userExtractor = require('../utils/userExtractor')
 
 // Helper
 
-const getTokenFrom = request => {
-  const authorization = request.get('authorization')
-  if (authorization && authorization.toLowerCase().startsWith('bearer ')) {
-    return authorization.substring(7)
-  }
-  return null
-}
+// const getTokenFrom = request => {
+//   const authorization = request.get('authorization')
+//   if (authorization && authorization.toLowerCase().startsWith('bearer ')) {
+//     return authorization.substring(7)
+//   }
+//   return null
+// }
 
 blogsRouter.get('/', async (request, response, next) => {
   try {
@@ -23,7 +24,7 @@ blogsRouter.get('/', async (request, response, next) => {
   }
 })
 
-blogsRouter.post('/', async (request, response, next) => {
+blogsRouter.post('/', userExtractor, async (request, response, next) => {
   // const body = request.body
 
   const {
@@ -34,12 +35,12 @@ blogsRouter.post('/', async (request, response, next) => {
     // userId
   } = request.body
 
-  const token = getTokenFrom(request)
+  // const token = getTokenFrom(request)
+
+  const { userId } = request
 
   try {
-    const decodedToken = jwt.verify(token, process.env.SECRET)
-
-    const user = await User.findById(decodedToken.id)
+    const user = await User.findById(userId)
 
     const blog = new Blog({
       title,
@@ -65,7 +66,7 @@ blogsRouter.post('/', async (request, response, next) => {
   }
 })
 
-blogsRouter.delete('/:id', async (request, response, next) => {
+blogsRouter.delete('/:id', userExtractor, async (request, response, next) => {
   const idBlog = request.params.id
 
   try {
@@ -76,7 +77,7 @@ blogsRouter.delete('/:id', async (request, response, next) => {
   }
 })
 
-blogsRouter.put('/:id', async (request, response, next) => {
+blogsRouter.put('/:id', userExtractor, async (request, response, next) => {
   const updatedBlog = request.body
   const idBlog = request.params.id
 

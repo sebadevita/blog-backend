@@ -53,7 +53,7 @@ describe('blogs', () => {
   })
 })
 
-describe('create a blog', () => {
+describe.skip('create a blog', () => {
   beforeEach(async () => {
     await Blog.deleteMany({})
     const blog1 = new Blog(initialBlogs[0])
