@@ -135,7 +135,7 @@ describe.skip('create a blog', () => {
   })
 })
 
-describe('delete a blog', () => {
+describe.skip('delete a blog', () => {
   let blog1
   let blog2
 
@@ -158,7 +158,7 @@ describe('delete a blog', () => {
   })
 })
 
-describe('update a blog', () => {
+describe.skip('update a blog', () => {
   let blog1
   let blog2
 
