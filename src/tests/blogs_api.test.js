@@ -111,6 +111,7 @@ describe('create a blog', () => {
     await api
       .post('/api/blogs')
       .send(blogWithoutLikes)
+      .set('Authorization', `bearer ${token}`)
       .expect(200)
       .expect('Content-Type', /application\/json/)
 
@@ -133,6 +134,7 @@ describe('create a blog', () => {
     await api
       .post('/api/blogs')
       .send(blogWithoutTitle)
+      .set('Authorization', `bearer ${token}`)
       .expect(400)
 
     const response = await api.get('/api/blogs')
@@ -148,6 +150,7 @@ describe('create a blog', () => {
     await api
       .post('/api/blogs')
       .send(blogWithoutUrl)
+      .set('Authorization', `bearer ${token}`)
       .expect(400)
 
     const response = await api.get('/api/blogs')
