@@ -1,10 +1,22 @@
 const mongoose = require('mongoose')
 const supertest = require('supertest')
+const jwt = require('jsonwebtoken')
 const app = require('../../app')
-const Blog = require('../models/blog')
 
 const api = supertest(app)
 
+const Blog = require('../models/blog')
+const User = require('../models/user')
+
+// Global token variables
+let token
+
+const initialUsers = [
+  {
+    username: 'sebita',
+    passwordHash: 'banana123'
+  }
+]
 const initialBlogs = [
   {
     title: 'Seba Blog',
@@ -20,9 +32,10 @@ const initialBlogs = [
     likes: 100
   }
 ]
-describe('blogs', () => {
+describe.skip('blogs', () => {
   beforeEach(async () => {
     await Blog.deleteMany({})
+
     const blog1 = new Blog(initialBlogs[0])
     await blog1.save()
     const blog2 = new Blog(initialBlogs[1])
@@ -53,13 +66,19 @@ describe('blogs', () => {
   })
 })
 
-describe.skip('create a blog', () => {
+describe('create a blog', () => {
   beforeEach(async () => {
     await Blog.deleteMany({})
+    await User.deleteMany({})
+    const user1 = new User(initialUsers[0])
+    await user1.save()
     const blog1 = new Blog(initialBlogs[0])
     await blog1.save()
     const blog2 = new Blog(initialBlogs[1])
     await blog2.save()
+
+    const userForToken = { username: user1.username, id: user1.id }
+    token = jwt.sign(userForToken, process.env.SECRET)
   })
   test('a valid post can be added', async () => {
     const newBlog = {
@@ -73,6 +92,7 @@ describe.skip('create a blog', () => {
     await api
       .post('/api/blogs')
       .send(newBlog)
+      .set('Authorization', `bearer ${token}`)
       .expect(200)
       .expect('Content-Type', /application\/json/)
 
