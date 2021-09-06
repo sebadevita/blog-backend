@@ -111,23 +111,42 @@ describe('Blogs', () => {
 
     await api.post('/api/blogs').send(newBlog).expect(401)
   })
-
   test('can be added with a valid user token', async () => {
     const newBlog = {
-      userId: adminUser.id,
-      title: 'new Blog',
-      author: 'Sebita',
-      utl: 'http://www.test.com',
-      likes: 10
+      title: 'Just an example blog title',
+      author: 'John Doe',
+      url: 'http://www.example.com',
+      likes: 12
     }
+
     await api
       .post('/api/blogs')
       .send(newBlog)
       .set('Authorization', `bearer ${token}`)
       .expect(200)
+      .expect('Content-Type', /application\/json/)
 
     const blogsAtEnd = await helper.blogsInDb()
     expect(blogsAtEnd).toHaveLength(helper.initialBlogs.length + 1)
+  })
+  test('are assigned 0 likes if "likes" property is missing from request', async () => {
+    const newBlog = {
+      title: 'Example blog title',
+      author: 'John Doe',
+      url: 'http://www.example.com'
+    }
+
+    const response = await api
+      .post('/api/blogs')
+      .send(newBlog)
+      .set('Authorization', `bearer ${token}`)
+      .expect(200)
+      .expect('Content-Type', /application\/json/)
+
+    const blogsAtEnd = await helper.blogsInDb()
+    expect(blogsAtEnd).toHaveLength(helper.initialBlogs.length + 1)
+
+    expect(response.body.likes).toBe(0)
   })
 })
 

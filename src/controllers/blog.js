@@ -25,36 +25,35 @@ blogsRouter.get('/', async (request, response, next) => {
 })
 
 blogsRouter.post('/', userExtractor, async (request, response, next) => {
-  // const body = request.body
-
-  const { title, author, url, likes } = request.body
-
-  // const token = getTokenFrom(request)
-
-  const { userId } = request
-
   try {
+    const { title, author, url, likes } = request.body
+    const { userId } = request
+
     const user = await User.findById(userId)
 
-    const blog = new Blog({
+    const newBlog = new Blog({
       title,
       author,
       url,
       likes,
-      user: user._id
+      user: user.id
     })
 
-    if (blog.likes === undefined) {
-      blog.likes = 0
+    if (newBlog.likes === undefined) {
+      newBlog.likes = 0
     }
 
-    const newBlog = await blog.save()
+    const savedBlog = await newBlog.save()
 
     // A los blogs que ya tenía, le asigno un nuevo blog
-    user.blogs = user.blogs.concat(newBlog._id)
+    user.blogs = user.blogs.concat(savedBlog.id)
     await user.save()
 
-    response.json(newBlog)
+    // const populatedBlog = await savedBlog
+    //   .populate('user', { username: 1, name: 1 })
+    //   .execPopulate()
+
+    response.json(savedBlog)
   } catch (error) {
     next(error)
   }
