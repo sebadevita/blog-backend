@@ -27,13 +27,7 @@ blogsRouter.get('/', async (request, response, next) => {
 blogsRouter.post('/', userExtractor, async (request, response, next) => {
   // const body = request.body
 
-  const {
-    title,
-    author,
-    url,
-    likes
-    // userId
-  } = request.body
+  const { title, author, url, likes } = request.body
 
   // const token = getTokenFrom(request)
 

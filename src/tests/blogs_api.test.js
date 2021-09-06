@@ -1,5 +1,5 @@
-const supertest = require('supertest')
 const mongoose = require('mongoose')
+const supertest = require('supertest')
 const jwt = require('jsonwebtoken')
 const helper = require('./test_helper')
 const app = require('../../app')
@@ -12,6 +12,7 @@ const Blog = require('../models/blog')
 // Token variables
 
 let token
+let noBlogsToken
 
 beforeEach(async () => {
   await Blog.deleteMany({})
@@ -22,12 +23,24 @@ beforeEach(async () => {
     passwordHash: 'secret'
   }).save()
 
+  const userWithNoBlogs = await new User({
+    username: 'noBlogsUser',
+    passwordHash: 'notSecret'
+  }).save()
+
   const userForToken = {
     id: adminUser.id,
     username: adminUser.username
   }
 
+  const userWithNoBlogsToken = {
+    id: userWithNoBlogs.id,
+    username: userWithNoBlogs.username
+
+  }
+
   token = jwt.sign(userForToken, process.env.SECRET)
+  noBlogsToken = jwt.sign(userWithNoBlogsToken, process.env.SECRET)
 
   await Promise.all(
     helper.initialBlogs.map((blog) => {
@@ -51,6 +64,70 @@ describe('Blogs', () => {
 
   test('return 404 status code when the blog does not exist', async () => {
     await api.get('/api/blogs/inexistentBlog').expect(404)
+  })
+
+  test('can be updated', async () => {
+    const allBlogsInDb = await helper.blogsInDb()
+    const blogToBeUpdated = allBlogsInDb[0]
+
+    const updatedData = {
+      likes: 100
+    }
+
+    const updatedBlog = await api
+      .put(`/api/blogs/${blogToBeUpdated.id}`)
+      .send(updatedData)
+      .set('Authorization', `bearer ${token}`)
+      .expect(200)
+
+    expect(updatedBlog.body.likes).toBe(updatedData.likes)
+  })
+
+  test('cannot be deleted if the blog was not created by the same user', async () => {
+    const blogsAtStart = await helper.blogsInDb()
+    const blogToDelete = blogsAtStart[0]
+    await api
+      .delete(`/api/blogs/${blogToDelete.id}`)
+      .set('Authorization', `bearer ${noBlogsToken}`)
+      .expect(401)
+  })
+
+  test('can be deleted if the blog was created by the same user', async () => {
+    const blogsAtStart = await helper.blogsInDb()
+    const blogToDelete = blogsAtStart[0]
+    await api
+      .delete(`/api/blogs/${blogToDelete.id}`)
+      .set('Authorization', `bearer ${token}`)
+      .expect(200)
+  })
+
+  test('cannot be added without a valid user token', async () => {
+    const newBlog = {
+      title: 'new Blog',
+      author: 'Sebita',
+      utl: 'http://www.test.com',
+      likes: 10
+    }
+
+    await api.post('/api/blogs').send(newBlog).expect(401)
+  })
+
+  test('can be added with a valid user token', async () => {
+    const newBlog = {
+      userId: adminUser.id,
+      title: 'new Blog',
+      author: 'Sebita',
+      utl: 'http://www.test.com',
+      likes: 10
+    }
+    await api
+      .post('/api/blogs')
+      .send(newBlog)
+      .set('Authorization', `bearer ${token}`)
+      .expect(200)
+
+    const blogsAtEnd = await helper.blogsInDb()
+    expect(blogsAtEnd).toHaveLength(helper.initialBlogs.length + 1)
   })
 })
 
