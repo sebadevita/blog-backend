@@ -1,70 +1,33 @@
-const mongoose = require('mongoose')
 const supertest = require('supertest')
+const mongoose = require('mongoose')
+const helper = require('./test_helper')
 const app = require('../../app')
-const User = require('../models/user')
 
 const api = supertest(app)
 
-const initialUsers = [
-  {
-    username: 'sebita',
-    name: 'Sebastian',
-    passwordHash: 'banana123'
-  },
-  {
-    username: 'andylarquy',
-    name: 'Andres',
-    passwordHash: 'mandarina123'
-  }
-]
-describe('get users', () => {
-  beforeEach(async () => {
-    await User.deleteMany({})
-    const user1 = new User(initialUsers[0])
-    await user1.save()
-    const user2 = new User(initialUsers[1])
-    await user2.save()
-  })
-  test('are returned as json', async () => {
-    await api
-      .get('/api/users')
-      .expect(200)
-      .expect('Content-Type', /application\/json/)
-  })
+const User = require('../models/user')
+const Blog = require('../models/blog')
 
-  test('there are 2 users', async () => {
-    const response = await api.get('/api/users')
-    expect(response.body).toHaveLength(initialUsers.length)
-  })
+const bcrypt = require('bcrypt')
 
-  test('the first user is sebita', async () => {
-    const response = await api.get('/api/users')
+beforeEach(async () => {
+  await User.deleteMany({})
+  await Blog.deleteMany({})
 
-    const users = await response.body.map(user => user.username)
+  const passwordHash = await bcrypt.hash('secret', 10)
+  const user = new User({ username: 'admin', passwordHash })
 
-    expect(users).toContain('sebita')
-  })
-  test('the unique identifier is named id', async () => {
-    const response = await api.get('/api/blogs')
-    expect(response.body[0].id).toBeDefined()
-  })
+  await user.save()
 })
 
-describe('create user', () => {
-  beforeEach(async () => {
-    await User.deleteMany({})
-    const user1 = new User(initialUsers[0])
-    await user1.save()
-    const user2 = new User(initialUsers[1])
-    await user2.save()
-  })
+describe('Creating new user', () => {
+  test('succeeds with a correct username', async () => {
+    const usersAtStart = await helper.usersInDb()
 
-  test('a valid user can be added', async () => {
     const newUser = {
-      username: 'newuser',
-      name: 'newname',
-      password: 'password123'
-
+      username: 'sebita',
+      name: 'sebastian',
+      password: 'password'
     }
 
     await api
@@ -73,43 +36,64 @@ describe('create user', () => {
       .expect(200)
       .expect('Content-Type', /application\/json/)
 
-    const response = await api.get('/api/users')
+    const usersAtEnd = await helper.usersInDb()
+    expect(usersAtEnd).toHaveLength(usersAtStart.length + 1)
 
-    expect(response.body).toHaveLength(initialUsers.length + 1)
+    const usernames = usersAtEnd.map((user) => user.username)
+    expect(usernames).toContain(newUser.username)
   })
 
-  test('without username is not added ', async () => {
-    const userWithoutUsername = {
-      name: 'User',
-      password: 'banana123'
+  test('fails with a username that already exists', async () => {
+    const usersAtStart = await helper.usersInDb()
+
+    const newUser = {
+      username: 'admin',
+      name: 'sebastian',
+      password: 'password'
     }
 
     await api
       .post('/api/users')
-      .send(userWithoutUsername)
+      .send(newUser)
       .expect(400)
 
-    const response = await api.get('/api/users')
-    expect(response.body).toHaveLength(initialUsers.length)
+    const usersAtEnd = await helper.usersInDb()
+    expect(usersAtEnd).toHaveLength(usersAtStart.length)
   })
 
-  test('with username of 2 characters is not added ', async () => {
-    const userWith2Characters = {
-      username: 'us',
-      name: 'User',
-      password: 'banana123'
+  test('fails with a username shorter than 3 characters', async () => {
+    const usersAtStart = await helper.usersInDb()
+
+    const newUser = {
+      username: 'a',
+      name: 'sebastian',
+      password: 'password'
     }
 
     await api
       .post('/api/users')
-      .send(userWith2Characters)
+      .send(newUser)
       .expect(400)
 
-    const response = await api.get('/api/users')
-    expect(response.body).toHaveLength(initialUsers.length)
+    const usersAtEnd = await helper.usersInDb()
+    expect(usersAtEnd).toHaveLength(usersAtStart.length)
+  })
+  test('fails without username', async () => {
+    const usersAtStart = await helper.usersInDb()
+
+    const newUser = {
+      name: 'sebastian',
+      password: 'password'
+    }
+
+    await api
+      .post('/api/users')
+      .send(newUser)
+      .expect(400)
+
+    const usersAtEnd = await helper.usersInDb()
+    expect(usersAtEnd).toHaveLength(usersAtStart.length)
   })
 })
 
-afterAll(() => {
-  mongoose.connection.close()
-})
+afterAll(() => mongoose.connection.close())
