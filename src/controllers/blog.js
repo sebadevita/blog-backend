@@ -1,8 +1,6 @@
 const Blog = require('../models/blog')
 const User = require('../models/user')
 const blogsRouter = require('express').Router()
-const jwt = require('jsonwebtoken')
-const userExtractor = require('../utils/userExtractor')
 
 blogsRouter.get('/', async (request, response, next) => {
   try {
@@ -30,13 +28,7 @@ blogsRouter.get('/:id', async (request, response, next) => {
 blogsRouter.post('/', async (request, response, next) => {
   try {
     const body = request.body
-
-    const decodedToken = jwt.verify(request.token, process.env.SECRET)
-
-    if (!request.token || !decodedToken.id) {
-      return response.status(401).json({ error: 'token missing or invalid' })
-    }
-    const user = await User.findById(decodedToken.id)
+    const user = await User.findById(request.userId)
 
     const newBlog = new Blog({
       title: body.title,
@@ -51,19 +43,14 @@ blogsRouter.post('/', async (request, response, next) => {
     // A los blogs que ya tenía, le asigno un nuevo blog
     user.blogs = user.blogs.concat(savedBlog.id)
     await user.save()
+
     response.json(savedBlog)
   } catch (error) {
     next(error)
   }
 })
 
-blogsRouter.delete('/:id', userExtractor, async (request, response, next) => {
-  // console.log(userId)
-
-  // if (blog.user.toString() !== userId) {
-  //   response.status(403)
-  // }
-
+blogsRouter.delete('/:id', async (request, response, next) => {
   try {
     const idBlog = request.params.id
 
@@ -82,7 +69,7 @@ blogsRouter.delete('/:id', userExtractor, async (request, response, next) => {
   }
 })
 
-blogsRouter.put('/:id', userExtractor, async (request, response, next) => {
+blogsRouter.put('/:id', async (request, response, next) => {
   const updatedBlog = request.body
   const idBlog = request.params.id
 
