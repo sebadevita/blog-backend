@@ -6,13 +6,13 @@ const userExtractor = require('../utils/userExtractor')
 
 // Helper
 
-// const getTokenFrom = request => {
-//   const authorization = request.get('authorization')
-//   if (authorization && authorization.toLowerCase().startsWith('bearer ')) {
-//     return authorization.substring(7)
-//   }
-//   return null
-// }
+const getTokenFrom = request => {
+  const authorization = request.get('authorization')
+  if (authorization && authorization.toLowerCase().startsWith('bearer ')) {
+    return authorization.substring(7)
+  }
+  return null
+}
 
 blogsRouter.get('/', async (request, response, next) => {
   try {
@@ -37,38 +37,31 @@ blogsRouter.get('/:id', async (request, response, next) => {
   }
 })
 
-blogsRouter.post('/', userExtractor, async (request, response, next) => {
-  if (!request.token || !request.decodedToken) {
-    return response.status(401).json({ error: 'missing or invalid token' })
-  }
+blogsRouter.post('/', async (request, response, next) => {
   try {
-    const { title, author, url, likes } = request.body
-    const { userId } = request
+    const body = request.body
+    const token = getTokenFrom(request)
 
-    const user = await User.findById(userId)
+    const decodedToken = jwt.verify(token, process.env.SECRET)
+
+    if (!token || !decodedToken.id) {
+      return response.status(401).json({ error: 'token missing or invalid' })
+    }
+    const user = await User.findById(decodedToken.id)
 
     const newBlog = new Blog({
-      title,
-      author,
-      url,
-      likes,
-      user: user.id
+      title: body.title,
+      author: body.author,
+      url: body.url,
+      likes: body.likes === undefined ? 0 : body.likes,
+      user: user._id
     })
-
-    if (newBlog.likes === undefined) {
-      newBlog.likes = 0
-    }
 
     const savedBlog = await newBlog.save()
 
     // A los blogs que ya tenía, le asigno un nuevo blog
     user.blogs = user.blogs.concat(savedBlog.id)
     await user.save()
-
-    // const populatedBlog = await savedBlog
-    //   .populate('user', { username: 1, name: 1 })
-    //   .execPopulate()
-
     response.json(savedBlog)
   } catch (error) {
     next(error)

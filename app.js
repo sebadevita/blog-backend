@@ -8,6 +8,7 @@ const loginRouter = require('./src/controllers/login')
 const middleware = require('./src/utils/middleware')
 const logger = require('./src/utils/logger')
 const mongoose = require('mongoose')
+const userExtractor = require('./src/utils/userExtractor')
 
 mongoose
   .connect(config.MONGODB_URI, {
