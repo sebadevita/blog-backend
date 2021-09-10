@@ -12,7 +12,7 @@ const mongoose = require('mongoose')
 mongoose
   .connect(config.MONGODB_URI, {
     useNewUrlParser: true,
-    useUnifiedTopology: false, // en true rompe los test
+    useUnifiedTopology: true, // en true rompe los test
     useFindAndModify: false,
     useCreateIndex: true
   })

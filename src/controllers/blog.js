@@ -16,15 +16,31 @@ const userExtractor = require('../utils/userExtractor')
 
 blogsRouter.get('/', async (request, response, next) => {
   try {
-    const blogs = await Blog
-      .find({}).populate('user', { username: 1, name: 1 })
+    const blogs = await Blog.find({}).populate('user', { username: 1, name: 1 })
     response.json(blogs)
   } catch (error) {
     next(error)
   }
 })
 
+blogsRouter.get('/:id', async (request, response, next) => {
+  const idBlog = request.params.id
+
+  try {
+    const blog = await Blog.findById(idBlog).populate('user', {
+      username: 1,
+      name: 1
+    })
+    response.json(blog)
+  } catch (error) {
+    next(error)
+  }
+})
+
 blogsRouter.post('/', userExtractor, async (request, response, next) => {
+  if (!request.token || !request.decodedToken) {
+    return response.status(401).json({ error: 'missing or invalid token' })
+  }
   try {
     const { title, author, url, likes } = request.body
     const { userId } = request
