@@ -53,7 +53,6 @@ describe('Blogs', () => {
   test('are returned as JSON', async () => {
     await api
       .get('/api/blogs')
-      .set('Authorization', `bearer ${token}`)
       .expect(200)
       .expect('Content-Type', /application\/json/)
   })
@@ -61,14 +60,12 @@ describe('Blogs', () => {
     const response =
     await api
       .get('/api/blogs')
-      .set('Authorization', `bearer ${token}`)
     expect(response.body[0].id).toBeDefined()
   })
 
   test('return 400 status code when the blog does not exist', async () => {
     await api
       .get('/api/blogs/inexistentBlog')
-      .set('Authorization', `bearer ${token}`)
       .expect(400)
   })
 
